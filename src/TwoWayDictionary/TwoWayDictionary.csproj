@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+
+    <!-- Package Information -->
+    <PackageId>TwoWayDictionary</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Ashish Karn</Authors>
+    <Description>A high-performance two-way dictionary implementation for C# that maintains one-to-one relationships between keys and values, allowing O(1) lookups in both directions. Simple, clean API with comprehensive functionality.</Description>
+    <PackageTags>dictionary;map;bidirectional;two-way;lookup;collections;data-structures;twoway</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ashishkarn/TwoWayDictionary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ashishkarn/TwoWayDictionary</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Generate documentation XML -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+
+    <!-- Package Release Notes -->
+    <PackageReleaseNotes>Initial release with full two-way dictionary functionality.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
