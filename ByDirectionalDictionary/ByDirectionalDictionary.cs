@@ -11,8 +11,8 @@ namespace ByDirectionalDictionary;
 /// <typeparam name="TKey">The type of keys in the map.</typeparam>
 /// <typeparam name="TValue">The type of values in the map.</typeparam>
 public class ByDirectionalDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
-	 where TKey : notnull
-	 where TValue : notnull
+	where TKey : notnull
+	where TValue : notnull
 {
 	private readonly Dictionary<TKey, TValue> _forwardMap = [];
 	private readonly Dictionary<TValue, TKey> _reverseMap = [];
