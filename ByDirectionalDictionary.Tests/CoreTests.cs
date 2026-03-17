@@ -16,7 +16,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Assert
-		Equal(1, map.Count);
+		Single(map);
 		Equal("one", map[1]);
 		Equal(1, map.GetKey("one"));
 	}
@@ -76,7 +76,7 @@ public class CoreTests
 
 		// Assert
 		True(result);
-		Equal(1, map.Count);
+		Single(map);
 	}
 
 	[Fact]
@@ -91,7 +91,7 @@ public class CoreTests
 
 		// Assert
 		False(result);
-		Equal(1, map.Count);
+		Single(map);
 	}
 
 	[Fact]
@@ -106,7 +106,7 @@ public class CoreTests
 
 		// Assert
 		False(result);
-		Equal(1, map.Count);
+		Single(map);
 	}
 
 	[Fact]
@@ -119,7 +119,7 @@ public class CoreTests
 		map.Set(1, "one");
 
 		// Assert
-		Equal(1, map.Count);
+		Single(map);
 		Equal("one", map[1]);
 	}
 
@@ -134,7 +134,7 @@ public class CoreTests
 		map.Set(1, "uno");
 
 		// Assert
-		Equal(1, map.Count);
+		Single(map);
 		Equal("uno", map[1]);
 		False(map.ContainsValue("one"));
 	}
@@ -150,7 +150,7 @@ public class CoreTests
 		map.Set(2, "one");
 
 		// Assert
-		Equal(1, map.Count);
+		Single(map);
 		Equal(2, map.GetKey("one"));
 		False(map.ContainsKey(1));
 	}
@@ -167,7 +167,7 @@ public class CoreTests
 		map.Set(1, "two");
 
 		// Assert
-		Equal(1, map.Count);
+		Single(map);
 		Equal("two", map[1]);
 		False(map.ContainsKey(2));
 	}
@@ -328,7 +328,7 @@ public class CoreTests
 
 		// Assert
 		True(result);
-		Equal(0, map.Count);
+		Empty(map);
 		False(map.ContainsKey(1));
 		False(map.ContainsValue("one"));
 	}
@@ -358,7 +358,7 @@ public class CoreTests
 
 		// Assert
 		True(result);
-		Equal(0, map.Count);
+		Empty(map);
 		False(map.ContainsKey(1));
 		False(map.ContainsValue("one"));
 	}
@@ -388,7 +388,7 @@ public class CoreTests
 
 		// Assert
 		True(result);
-		Equal(0, map.Count);
+		Empty(map);
 	}
 
 	[Fact]
@@ -458,7 +458,7 @@ public class CoreTests
 		map.Clear();
 
 		// Assert
-		Equal(0, map.Count);
+		Empty(map);
 		False(map.ContainsKey(1));
 		False(map.ContainsValue("one"));
 	}
@@ -530,7 +530,7 @@ public class CoreTests
 		ByDirectionalDictionary<int, string> map = [];
 
 		// Act & Assert
-		Equal(0, map.Count);
+		Empty(map);
 	}
 
 	[Fact]
@@ -565,7 +565,7 @@ public class CoreTests
 		True(map.ContainsValue(2));  // B->2 should still exist
 
 		map.RemoveByKey("A");
-		Equal(1, map.Count);
+		Single(map);
 		False(map.ContainsKey("A"));
 		False(map.ContainsValue(3));
 		True(map.ContainsKey("B"));  // B->2 should still exist
