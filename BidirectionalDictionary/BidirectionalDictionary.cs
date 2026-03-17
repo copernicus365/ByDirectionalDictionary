@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ByDirectionalDictionary;
+namespace DotNetXtensions;
 
 /// <summary>
 /// Represents a two-way one-to-one mapping between keys and values.
@@ -10,7 +10,7 @@ namespace ByDirectionalDictionary;
 /// </summary>
 /// <typeparam name="TKey">The type of keys in the map.</typeparam>
 /// <typeparam name="TValue">The type of values in the map.</typeparam>
-public class ByDirectionalDictionary<TKey, TValue> :
+public class BidirectionalDictionary<TKey, TValue> :
 	IDictionary<TKey, TValue>,
 	IEnumerable<KeyValuePair<TKey, TValue>>
 	where TKey : notnull

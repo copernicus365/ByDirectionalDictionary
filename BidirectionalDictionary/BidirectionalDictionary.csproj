@@ -7,13 +7,13 @@
     <Nullable>enable</Nullable>
 
     <!-- Package Information -->
-    <PackageId>ByDirectionalDictionary</PackageId>
+    <PackageId>DotNetXtensions.BidirectionalDictionary</PackageId>
     <Authors>Ashish Karn, Nicholas Petersen</Authors>
     <Description>A high-performance two-way dictionary implementation for C# that maintains one-to-one relationships between keys and values, allowing O(1) lookups in both directions. Simple, clean API with comprehensive functionality.</Description>
     <PackageTags>dictionary;map;bidirectional;two-way;lookup;collections;data-structures;twoway</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/copernicus365/ByDirectionalDictionary</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/copernicus365/ByDirectionalDictionary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/copernicus365/DotNetXtensions.BidirectionalDictionary</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/copernicus365/DotNetXtensions.BidirectionalDictionary</PackageProjectUrl>
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

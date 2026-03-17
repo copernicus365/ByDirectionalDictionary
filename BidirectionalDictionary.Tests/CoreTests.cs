@@ -2,7 +2,7 @@ using Xunit;
 
 using static Xunit.Assert;
 
-namespace ByDirectionalDictionary.Tests;
+namespace DotNetXtensions.Tests;
 
 public class CoreTests
 {
@@ -10,7 +10,7 @@ public class CoreTests
 	public void Add_ValidKeyValue_AddsSuccessfully()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		map.Add(1, "one");
@@ -25,7 +25,7 @@ public class CoreTests
 	public void Add_DuplicateKey_ThrowsArgumentException()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act & Assert
@@ -37,7 +37,7 @@ public class CoreTests
 	public void Add_DuplicateValue_ThrowsArgumentException()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act & Assert
@@ -49,7 +49,7 @@ public class CoreTests
 	public void Add_NullKey_ThrowsArgumentNullException()
 	{
 		// Arrange
-		ByDirectionalDictionary<string, string> map = [];
+		BidirectionalDictionary<string, string> map = [];
 
 		// Act & Assert
 		Throws<ArgumentNullException>(() => map.Add(null!, "value"));
@@ -59,7 +59,7 @@ public class CoreTests
 	public void Add_NullValue_ThrowsArgumentNullException()
 	{
 		// Arrange
-		ByDirectionalDictionary<string, string> map = [];
+		BidirectionalDictionary<string, string> map = [];
 
 		// Act & Assert
 		Throws<ArgumentNullException>(() => map.Add("key", null!));
@@ -69,7 +69,7 @@ public class CoreTests
 	public void TryAdd_ValidKeyValue_ReturnsTrue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.TryAdd(1, "one");
@@ -83,7 +83,7 @@ public class CoreTests
 	public void TryAdd_DuplicateKey_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -98,7 +98,7 @@ public class CoreTests
 	public void TryAdd_DuplicateValue_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -113,7 +113,7 @@ public class CoreTests
 	public void Set_NewKeyValue_AddsSuccessfully()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		map.Set(1, "one");
@@ -127,7 +127,7 @@ public class CoreTests
 	public void Set_ExistingKey_UpdatesValue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -143,7 +143,7 @@ public class CoreTests
 	public void Set_ExistingValue_UpdatesKey()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -159,7 +159,7 @@ public class CoreTests
 	public void Set_ConflictingKeyAndValue_RemovesBothAndAddsNew()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 		map.Add(2, "two");
 
@@ -176,7 +176,7 @@ public class CoreTests
 	public void GetValue_ExistingKey_ReturnsValue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -190,7 +190,7 @@ public class CoreTests
 	public void GetValue_NonExistingKey_ThrowsKeyNotFoundException()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act & Assert
 		Throws<KeyNotFoundException>(() => map.GetValue(1));
@@ -200,7 +200,7 @@ public class CoreTests
 	public void GetKey_ExistingValue_ReturnsKey()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -214,7 +214,7 @@ public class CoreTests
 	public void GetKey_NonExistingValue_ThrowsKeyNotFoundException()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act & Assert
 		Throws<KeyNotFoundException>(() => map.GetKey("one"));
@@ -224,7 +224,7 @@ public class CoreTests
 	public void TryGetValue_ExistingKey_ReturnsTrueAndValue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -239,7 +239,7 @@ public class CoreTests
 	public void TryGetValue_NonExistingKey_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.TryGetValue(1, out var value);
@@ -253,7 +253,7 @@ public class CoreTests
 	public void TryGetKey_ExistingValue_ReturnsTrueAndKey()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -268,7 +268,7 @@ public class CoreTests
 	public void TryGetKey_NonExistingValue_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.TryGetKey("one", out var key);
@@ -282,7 +282,7 @@ public class CoreTests
 	public void Indexer_Get_ExistingKey_ReturnsValue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -296,7 +296,7 @@ public class CoreTests
 	public void Indexer_Get_NonExistingKey_ThrowsKeyNotFoundException()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act & Assert
 		Throws<KeyNotFoundException>(() => map[1]);
@@ -306,7 +306,7 @@ public class CoreTests
 	public void Indexer_Set_UpdatesValue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -320,7 +320,7 @@ public class CoreTests
 	public void RemoveByKey_ExistingKey_RemovesAndReturnsTrue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -337,7 +337,7 @@ public class CoreTests
 	public void RemoveByKey_NonExistingKey_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.RemoveByKey(1);
@@ -350,7 +350,7 @@ public class CoreTests
 	public void RemoveByValue_ExistingValue_RemovesAndReturnsTrue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -367,7 +367,7 @@ public class CoreTests
 	public void RemoveByValue_NonExistingValue_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.RemoveByValue("one");
@@ -380,7 +380,7 @@ public class CoreTests
 	public void Remove_ExistingKey_RemovesAndReturnsTrue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -395,7 +395,7 @@ public class CoreTests
 	public void ContainsKey_ExistingKey_ReturnsTrue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -409,7 +409,7 @@ public class CoreTests
 	public void ContainsKey_NonExistingKey_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.ContainsKey(1);
@@ -422,7 +422,7 @@ public class CoreTests
 	public void ContainsValue_ExistingValue_ReturnsTrue()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 
 		// Act
@@ -436,7 +436,7 @@ public class CoreTests
 	public void ContainsValue_NonExistingValue_ReturnsFalse()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		var result = map.ContainsValue("one");
@@ -449,7 +449,7 @@ public class CoreTests
 	public void Clear_RemovesAllMappings()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 		map.Add(2, "two");
 		map.Add(3, "three");
@@ -467,7 +467,7 @@ public class CoreTests
 	public void Keys_ReturnsAllKeys()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 		map.Add(2, "two");
 		map.Add(3, "three");
@@ -486,7 +486,7 @@ public class CoreTests
 	public void Values_ReturnsAllValues()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 		map.Add(2, "two");
 		map.Add(3, "three");
@@ -505,7 +505,7 @@ public class CoreTests
 	public void GetEnumerator_IteratesAllPairs()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 		map.Add(1, "one");
 		map.Add(2, "two");
 		map.Add(3, "three");
@@ -527,7 +527,7 @@ public class CoreTests
 	public void Count_EmptyMap_ReturnsZero()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act & Assert
 		Empty(map);
@@ -537,7 +537,7 @@ public class CoreTests
 	public void Count_AfterAddingMultiple_ReturnsCorrectCount()
 	{
 		// Arrange
-		ByDirectionalDictionary<int, string> map = [];
+		BidirectionalDictionary<int, string> map = [];
 
 		// Act
 		map.Add(1, "one");
@@ -552,7 +552,7 @@ public class CoreTests
 	public void ComplexScenario_AddSetRemove_MaintainsConsistency()
 	{
 		// Arrange
-		ByDirectionalDictionary<string, int> map = [];
+		BidirectionalDictionary<string, int> map = [];
 
 		// Act & Assert
 		map.Add("A", 1);
@@ -578,7 +578,7 @@ public class CoreTests
 	public void BidirectionalLookup_WorksCorrectly()
 	{
 		// Arrange
-		ByDirectionalDictionary<string, int> map = [];
+		BidirectionalDictionary<string, int> map = [];
 		map.Add("Alice", 101);
 		map.Add("Bob", 102);
 		map.Add("Charlie", 103);

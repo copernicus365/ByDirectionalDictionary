@@ -1,6 +1,10 @@
-# TwoWayDictionary
+# BidirectionalDictionary
+
+[![NuGet](https://img.shields.io/nuget/v/DotNetXtensions.BidirectionalDictionary.svg)](https://www.nuget.org/packages/DotNetXtensions.BidirectionalDictionary)
 
 A high-performance bidirectional dictionary implementation for C# that maintains one-to-one relationships between keys and values, allowing O(1) lookups in both directions.
+
+This is a fork with a couple key modifications of [ashishkarn]()'s great looking [TwoWayDictionary](https://github.com/ashishkarn/TwoWayDictionary). Perhaps some changes I needed can ultimately be PR'd or pulled into that project, but I'm not sure, so for now, this is a separate library. This readme has not been much updated yet... (2026/03)
 
 ## Features
 
@@ -11,29 +15,29 @@ A high-performance bidirectional dictionary implementation for C# that maintains
 - **IEnumerable Support**: Iterate through key-value pairs with foreach
 - **Well-Tested**: Comprehensive unit test coverage (40+ tests, 100% passing)
 - **Zero Dependencies**: No external dependencies beyond .NET 6.0+
-- **Multi-Target**: Supports .NET 6.0 and .NET 9.0
+- **Multi-Target**: Supports .NET 8.0 and .NET 10.0
 
 ## Installation
 
 Install via NuGet Package Manager:
 
 ```bash
-dotnet add package TwoWayDictionary
+dotnet add package BidirectionalDictionary
 ```
 
 Or via Package Manager Console:
 
 ```powershell
-Install-Package TwoWayDictionary
+Install-Package BidirectionalDictionary
 ```
 
 ## Quick Start
 
 ```csharp
-using TwoWayDictionary;
+using DotNetXtensions;
 
 // Create a two-way dictionary
-var userMap = new TwoWayDictionary<int, string>();
+var userMap = new BidirectionalDictionary<int, string>();
 
 // Add mappings
 userMap.Add(101, "Alice");
@@ -131,7 +135,7 @@ foreach (var pair in map)
 
 ### User ID to Username Mapping
 ```csharp
-var userMap = new TwoWayDictionary<int, string>();
+var userMap = new BidirectionalDictionary<int, string>();
 userMap.Add(1001, "john_doe");
 userMap.Add(1002, "jane_smith");
 
@@ -144,7 +148,7 @@ int userId = userMap.GetKey("jane_smith");  // 1002
 
 ### Country Code to Country Name
 ```csharp
-var countryMap = new TwoWayDictionary<string, string>();
+var countryMap = new BidirectionalDictionary<string, string>();
 countryMap.Add("US", "United States");
 countryMap.Add("UK", "United Kingdom");
 countryMap.Add("CA", "Canada");
@@ -158,7 +162,7 @@ string code = countryMap.GetKey("Canada");  // "CA"
 
 ### Coordinate to Entity Mapping (Game Development)
 ```csharp
-var positionMap = new TwoWayDictionary<Vector3, GameObject>();
+var positionMap = new BidirectionalDictionary<Vector3, GameObject>();
 positionMap.Add(new Vector3(0, 0, 0), player);
 positionMap.Add(new Vector3(10, 0, 5), enemy);
 
@@ -192,11 +196,11 @@ Both `TKey` and `TValue` must be non-nullable reference types or value types. Th
 
 ```csharp
 // Valid
-var map1 = new TwoWayDictionary<int, string>();
-var map2 = new TwoWayDictionary<Guid, MyClass>();
+var map1 = new BidirectionalDictionary<int, string>();
+var map2 = new BidirectionalDictionary<Guid, MyClass>();
 
 // Invalid - nullable types not allowed
-// var map3 = new TwoWayDictionary<int?, string>();
+// var map3 = new BidirectionalDictionary<int?, string>();
 ```
 
 ## Requirements

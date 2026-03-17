@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BidirectionalDictionary/BidirectionalDictionary.csproj" />
+  <Project Path="BidirectionalDictionary.Tests/BidirectionalDictionary.Tests.csproj" />
+</Solution>
