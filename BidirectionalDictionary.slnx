@@ -5,5 +5,8 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="BidirectionalDictionary/BidirectionalDictionary.csproj" />
+  <Folder Name="/root/">
+    <File Path="readme-bidir-setter.md" />
+  </Folder>
   <Project Path="BidirectionalDictionary.Tests/BidirectionalDictionary.Tests.csproj" />
 </Solution>
