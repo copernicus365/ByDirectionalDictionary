@@ -9,12 +9,12 @@
     <!-- Package Information -->
     <PackageId>DotNetXtensions.BidirectionalDictionary</PackageId>
     <Authors>Ashish Karn, Nicholas Petersen</Authors>
-    <Description>A high-performance two-way dictionary implementation for C# that maintains one-to-one relationships between keys and values, allowing O(1) lookups in both directions. Simple, clean API with comprehensive functionality.</Description>
-    <PackageTags>dictionary;map;bidirectional;two-way;lookup;collections;data-structures;twoway</PackageTags>
+    <Description>A high-performance bidirectional dictionary (BiMap) for C# with O(1) lookups in both directions. Implements IDictionary&lt;TKey, TValue&gt; with a configurable Force property for setter behavior — aligned with Guava's BiMap semantics.</Description>
+    <PackageTags>dictionary;map;bidirectional;two-way;bimap;bijection;inverse;lookup;collections;data-structures;twoway</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/copernicus365/DotNetXtensions.BidirectionalDictionary</RepositoryUrl>
     <PackageProjectUrl>https://github.com/copernicus365/DotNetXtensions.BidirectionalDictionary</PackageProjectUrl>
-    
+
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!--<PackageReleaseNotes></PackageReleaseNotes>-->
