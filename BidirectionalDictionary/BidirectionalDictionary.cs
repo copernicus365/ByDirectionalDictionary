@@ -29,11 +29,18 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// `put` when false.
 	/// <para />
 	/// In summary:
-	/// `Force`: "I don't care what key owned that value before — evict it (if already exists) and update it to be owned by THIS new key" 
+	/// `Force`: "I don't care what key owned that value before — evict it (if already exists) and update it to be owned by THIS new key"
 	/// `!Force`: "I'm updating this key's mapping, but if this value already existed, it MUST NOT already be set to a
 	/// DIFFERENT KEY, scream if they differ"
 	/// </summary>
 	public bool Force { get; set; } = true;
+
+	/// <summary>
+	/// When false, adding or setting will throw if the key or value equals the default value for its type
+	/// (e.g. <c>0</c> for <c>int</c>, <c>Guid.Empty</c> for <c>Guid</c>, <c>null</c> for reference types).
+	/// Defaults to true — opt-out only.
+	/// </summary>
+	public bool AllowDefaults { get; set; } = true;
 
 	/// <summary>Constructor</summary>
 	public BidirectionalDictionary()
@@ -55,6 +62,15 @@ public class BidirectionalDictionary<TKey, TValue> :
 
 	bool _tvalsEqual(TValue? x, TValue? y) => _rmap.Comparer.Equals(x, y);
 	bool _tkeysEqual(TKey? x, TKey? y) => _fmap.Comparer.Equals(x, y);
+
+	void _checkDefaults(TKey key, TValue value)
+	{
+		//if(!AllowDefaults) return; // <-- or could move this here. better perf tho to ignore a method call on hotspots (Set)
+		if(EqualityComparer<TKey>.Default.Equals(key, default!))
+			throw new ArgumentException($"Key '{key}' is the default value for its type, which is disallowed.", nameof(key));
+		if(EqualityComparer<TValue>.Default.Equals(value, default!))
+			throw new ArgumentException($"Value '{value}' is the default value for its type, which is disallowed.", nameof(value));
+	}
 
 	/// <summary>
 	/// Gets the number of key-value pairs in the map.
@@ -86,7 +102,7 @@ public class BidirectionalDictionary<TKey, TValue> :
 		get => _fmap.TryGetValue(key, out var value)
 			 ? value
 			 : throw new KeyNotFoundException($"The key '{key}' was not found.");
-		set => Set(key, value);
+		set => Set(key, value, Force);
 	}
 
 	/// <summary>
@@ -115,6 +131,9 @@ public class BidirectionalDictionary<TKey, TValue> :
 		ArgumentNullException.ThrowIfNull(key);
 		ArgumentNullException.ThrowIfNull(value);
 
+		if(!AllowDefaults)
+			_checkDefaults(key, value);
+
 		if(_fmap.ContainsKey(key))
 			throw new ArgumentException($"Key '{key}' already exists.", nameof(key));
 
@@ -136,6 +155,8 @@ public class BidirectionalDictionary<TKey, TValue> :
 	{
 		ArgumentNullException.ThrowIfNull(key);
 		ArgumentNullException.ThrowIfNull(value);
+		if(!AllowDefaults)
+			_checkDefaults(key, value);
 
 		if(_fmap.ContainsKey(key) || _rmap.ContainsKey(value))
 			return false;
@@ -175,12 +196,16 @@ public class BidirectionalDictionary<TKey, TValue> :
 			_rmap.Remove(existingValue);
 		}
 
+		if(!AllowDefaults)
+			_checkDefaults(key, value);
+
 		// does the *new* value already exist? AND if so is it's key different??
 		bool valueExistsWithDiffKey = _rmap.TryGetValue(value, out TKey? owningKey) && !_tkeysEqual(owningKey, key);
 		if(valueExistsWithDiffKey) {
 			if(!force)
 				throw new ArgumentException($"Value '{value}' is already mapped to key '{owningKey}'.", nameof(value));
-			_fmap.Remove(owningKey);
+			if(owningKey != null)
+				_fmap.Remove(owningKey);
 		}
 
 		_fmap[key] = value;
@@ -222,7 +247,8 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// </summary>
 	/// <param name="key">The key to remove.</param>
 	/// <returns>true if the key was found and removed; otherwise, false.</returns>
-	public bool Remove(TKey key) => RemoveByKey(key);
+	public bool Remove(TKey key)
+		=> RemoveByKey(key);
 
 	/// <summary>
 	/// Removes the mapping with the specified key OR value.
@@ -277,9 +303,7 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// <param name="value">When this method returns, contains the value associated with the key, if found.</param>
 	/// <returns>true if the key was found; otherwise, false.</returns>
 	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
-	{
-		return _fmap.TryGetValue(key, out value);
-	}
+		=> _fmap.TryGetValue(key, out value);
 
 	/// <summary>
 	/// Attempts to get the key associated with the specified value.
@@ -288,9 +312,7 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// <param name="key">When this method returns, contains the key associated with the value, if found.</param>
 	/// <returns>true if the value was found; otherwise, false.</returns>
 	public bool TryGetKey(TValue value, [MaybeNullWhen(false)] out TKey key)
-	{
-		return _rmap.TryGetValue(value, out key);
-	}
+		=> _rmap.TryGetValue(value, out key);
 
 	/// <summary>
 	/// Determines whether the maps contain the specified key and value.
@@ -309,14 +331,16 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// </summary>
 	/// <param name="key">The key to locate.</param>
 	/// <returns>true if the map contains the key; otherwise, false.</returns>
-	public bool ContainsKey(TKey key) => _fmap.ContainsKey(key);
+	public bool ContainsKey(TKey key)
+		=> _fmap.ContainsKey(key);
 
 	/// <summary>
 	/// Determines whether the map contains the specified value.
 	/// </summary>
 	/// <param name="value">The value to locate.</param>
 	/// <returns>true if the map contains the value; otherwise, false.</returns>
-	public bool ContainsValue(TValue value) => _rmap.ContainsKey(value);
+	public bool ContainsValue(TValue value)
+		=> _rmap.ContainsKey(value);
 
 	/// <summary>
 	/// Removes all mappings from the map.
@@ -332,18 +356,14 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// </summary>
 	/// <returns>An enumerator for the map.</returns>
 	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-	{
-		return _fmap.GetEnumerator();
-	}
+		=> _fmap.GetEnumerator();
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the key-value pairs in the map.
 	/// </summary>
 	/// <returns>An enumerator for the map.</returns>
 	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
-	}
+		=> GetEnumerator();
 
 
 	/// <summary>
@@ -352,7 +372,5 @@ public class BidirectionalDictionary<TKey, TValue> :
 	/// <param name="array">Array to copy to</param>
 	/// <param name="arrayIndex">The starting index in array to start copying to</param>
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-	{
-		((ICollection<KeyValuePair<TKey, TValue>>)_fmap).CopyTo(array, arrayIndex);
-	}
+		=> ((ICollection<KeyValuePair<TKey, TValue>>)_fmap).CopyTo(array, arrayIndex);
 }
