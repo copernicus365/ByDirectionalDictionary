@@ -78,6 +78,12 @@ public class BidirectionalDictionary<TKey, TValue> :
 	public int Count => _fmap.Count;
 
 	/// <summary>
+	/// For internal consistency purposes, gets whether the forward and reverse maps have the same count.
+	/// Note that exceptions that stop control flow can break this (ie updates are not transactions).
+	/// </summary>
+	public bool CountsAreEqual => _fmap.Count == _rmap.Count;
+
+	/// <summary>
 	/// Gets a collection containing the keys in the map.
 	/// </summary>
 	public ICollection<TKey> Keys => _fmap.Keys;
@@ -189,27 +195,67 @@ public class BidirectionalDictionary<TKey, TValue> :
 		ArgumentNullException.ThrowIfNull(key);
 		ArgumentNullException.ThrowIfNull(value);
 
-		if(_fmap.TryGetValue(key, out TValue? currentValue)) {
-			if(_tvalsEqual(value, currentValue))
-				return;
-			// the value has changed, remove *existing* value from _rmap
-			_rmap.Remove(currentValue);
-		}
+		bool keyExists = _fmap.TryGetValue(key, out TValue? currentValue);
+		if(keyExists && _tvalsEqual(value, currentValue))
+			return;
 
 		if(!AllowDefaults)
 			_checkDefaults(key, value);
 
-		// does the *new* value already exist? AND if so is it's key different??
-		bool valueExistsWithDiffKey = _rmap.TryGetValue(value, out TKey? currentKey) && !_tkeysEqual(currentKey, key);
+		// does the *new* value already exist? AND if so is its key different?
+		// IMPORTANT: check conflict BEFORE modifying anything, so a throw leaves the dictionary untouched
+		bool valueExistsWithDiffKey = _rmap.TryGetValue(value, out TKey? conflictKey) && !_tkeysEqual(conflictKey, key);
 		if(valueExistsWithDiffKey) {
 			if(!force)
-				throw new ArgumentException($"Value '{value}' is already mapped to key '{currentKey}'.", nameof(value));
-			if(currentKey != null)
-				_fmap.Remove(currentKey);
+				throw new ArgumentException($"Value '{value}' is already mapped to key '{conflictKey}'.", nameof(value));
+			if(conflictKey != null)
+				_fmap.Remove(conflictKey);
 		}
+
+		// if keyExists AND == value, RETURNED. So at this point keyExists === keyExists_ValueDiffered, must remove from reverse map
+		if(keyExists)
+			_rmap.Remove(currentValue!);
 
 		_fmap[key] = value;
 		_rmap[value] = key;
+	}
+
+	public bool TrySet(TKey key, TValue value, out TKey? differentKeyOwns)
+	{
+		// unfort we have to duplicate much code with Set, would have been nice to fully share, but best in end
+		// not to. MUST remember however to sync core Set logic where applicable between these two
+		ArgumentNullException.ThrowIfNull(key);
+		ArgumentNullException.ThrowIfNull(value);
+
+		bool keyExists = _fmap.TryGetValue(key, out TValue? currentValue);
+
+		if(keyExists && _tvalsEqual(value, currentValue)) {
+			differentKeyOwns = default;
+			return true;
+		}
+
+		// key may or may not exist at this point... but input key/value pair did NOT exist
+
+		if(!AllowDefaults)
+			_checkDefaults(key, value);
+
+		// does the *new* value already exist? AND if so is its key different?
+		// IMPORTANT: check conflict BEFORE modifying anything, so a false return leaves the dictionary untouched
+		bool valueExistsWithDiffKey = _rmap.TryGetValue(value, out TKey? conflictKey) && !_tkeysEqual(conflictKey, key);
+		if(valueExistsWithDiffKey) {
+			differentKeyOwns = conflictKey;
+			return false;
+		}
+
+		// all checks passed — now commit
+		if(keyExists)
+			_rmap.Remove(currentValue!);
+
+		differentKeyOwns = default;
+		_fmap[key] = value;
+		_rmap[value] = key;
+
+		return true;
 	}
 
 	/// <summary>
