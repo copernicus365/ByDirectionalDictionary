@@ -6,6 +6,8 @@ namespace DotNetXtensions.Tests;
 
 public class CoreTests
 {
+	const int testVal = 5;
+
 	[Fact]
 	public void Add_ValidKeyValue_AddsSuccessfully()
 	{
@@ -16,7 +18,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Assert
-		Single(map);
+		_single(map);
 		Equal("one", map[1]);
 		Equal(1, map.GetKey("one"));
 
@@ -79,7 +81,7 @@ public class CoreTests
 
 		// Assert
 		True(result);
-		Single(map);
+		_single(map);
 	}
 
 	[Fact]
@@ -94,7 +96,7 @@ public class CoreTests
 
 		// Assert
 		False(result);
-		Single(map);
+		_single(map);
 	}
 
 	[Fact]
@@ -109,7 +111,7 @@ public class CoreTests
 
 		// Assert
 		False(result);
-		Single(map);
+		_single(map);
 	}
 
 	[Fact]
@@ -122,7 +124,7 @@ public class CoreTests
 		map.Set(1, "one");
 
 		// Assert
-		Single(map);
+		_single(map);
 		Equal("one", map[1]);
 	}
 
@@ -137,7 +139,7 @@ public class CoreTests
 		map.Set(1, "uno");
 
 		// Assert
-		Single(map);
+		_single(map);
 		Equal("uno", map[1]);
 		False(map.ContainsValue("one"));
 	}
@@ -153,7 +155,7 @@ public class CoreTests
 		map.Set(2, "one");
 
 		// Assert
-		Single(map);
+		_single(map);
 		Equal(2, map.GetKey("one"));
 		False(map.ContainsKey(1));
 	}
@@ -170,10 +172,49 @@ public class CoreTests
 		map.Set(1, "two");
 
 		// Assert
-		Single(map);
+		_single(map);
 		Equal("two", map[1]);
 		False(map.ContainsKey(2));
 	}
+
+	[Fact]
+	public void DefaultInstanceValuesCorrect_AllowDefaults_Force()
+	{
+		BidirectionalDictionary<string, int> map = [];
+		True(map.AllowDefaults);
+		True(map.Force);
+	}
+
+	// === Force ===
+
+	[Fact]
+	public void Set_Force_DuplicateValuesOverwrite()
+	{
+		var map = new BidirectionalDictionary<string, int> { Force = true };
+		map["a1"] = testVal; // should not throw
+		Equal(testVal, map["a1"]);
+		_single(map);
+
+		map["a2"] = testVal; // should not throw
+
+		_single(map);
+		Equal(testVal, map["a2"]);
+
+		False(map.ContainsKey("a1"));
+		True(map.ContainsValue(testVal));
+	}
+
+
+	[Fact]
+	public void Set_Force_NOT_DuplicateValuesSet_Throw()
+	{
+		var map = new BidirectionalDictionary<string, int> { Force = false };
+		map["a1"] = testVal; // should not throw
+		Equal(testVal, map["a1"]);
+		Throws<ArgumentException>(() => map["a2"] = testVal);
+	}
+
+
 
 	[Fact]
 	public void GetValue_ExistingKey_ReturnsValue()
@@ -570,7 +611,7 @@ public class CoreTests
 		True(map.ContainsValue(2));  // B->2 should still exist
 
 		map.RemoveByKey("A");
-		Single(map);
+		_single(map);
 		False(map.ContainsKey("A"));
 		False(map.ContainsValue(3));
 		True(map.ContainsKey("B"));  // B->2 should still exist
@@ -599,4 +640,103 @@ public class CoreTests
 		Equal("Bob", map.GetKey(102));
 		Equal("Charlie", map.GetKey(103));
 	}
+
+	// --- AllowDefaults ---
+
+	[Fact]
+	public void AllowDefaults_False_Throws()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = false };
+		Throws<ArgumentException>(() => map["pending"] = 0);
+	}
+
+	[Fact]
+	public void AllowDefaults_True_AllowsDefaultValue_Add()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = true };
+		map.Add("pending", 0); // should not throw
+		Equal(0, map["pending"]);
+	}
+
+
+	[Fact]
+	public void AllowDefaults_True_AllowsDefaultValue_Set()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = true };
+		map["pending"] = 0; // should not throw
+		Equal(0, map["pending"]);
+	}
+
+	[Fact]
+	public void AllowDefaults_False_Add_ThrowsOnDefaultValue()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = false };
+		var ex = Throws<ArgumentException>(() => map.Add("pending", 0));
+		Contains("value", ex.Message, StringComparison.OrdinalIgnoreCase);
+	}
+
+	[Fact]
+	public void AllowDefaults_False_Add_ThrowsOnDefaultKey()
+	{
+		var map = new BidirectionalDictionary<int, string> { AllowDefaults = false };
+		var ex = Throws<ArgumentException>(() => map.Add(0, "pending"));
+		Contains("key", ex.Message, StringComparison.OrdinalIgnoreCase);
+	}
+
+	[Fact]
+	public void AllowDefaults_False_TryAdd_ThrowsOnDefaultValue()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = false };
+		Throws<ArgumentException>(() => map.TryAdd("pending", 0));
+	}
+
+	[Fact]
+	public void AllowDefaults_False_Set_ThrowsOnDefaultValue()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = false };
+		Throws<ArgumentException>(() => map.Set("pending", 0));
+	}
+
+	[Fact]
+	public void AllowDefaults_False_Set_ThrowsOnDefaultKey()
+	{
+		var map = new BidirectionalDictionary<int, string> { AllowDefaults = false };
+		Throws<ArgumentException>(() => map.Set(0, "hello"));
+	}
+
+	[Fact]
+	public void AllowDefaults_False_GuidEmpty_ThrowsOnDefaultValue()
+	{
+		var map = new BidirectionalDictionary<string, Guid> { AllowDefaults = false };
+		Throws<ArgumentException>(() => map.Add("x", Guid.Empty));
+	}
+
+	[Fact]
+	public void AllowDefaults_False_GuidEmpty_NonDefaultSucceeds()
+	{
+		var map = new BidirectionalDictionary<string, Guid> { AllowDefaults = false };
+		var id = Guid.NewGuid();
+		map.Add("x", id);
+		Equal(id, map["x"]);
+	}
+
+	[Fact]
+	public void AllowDefaults_Force_Overwrites()
+	{
+		var map = new BidirectionalDictionary<string, int> { AllowDefaults = true, Force = true };
+		map["pending"] = 0; // should not throw
+		Equal(0, map["pending"]);
+		_single(map);
+
+		map["a2"] = 0; // should not throw
+
+		_single(map);
+		Equal(0, map["a2"]);
+
+		False(map.ContainsKey("pending"));
+		True(map.ContainsValue(0));
+	}
+
+	static void _single<T>(ICollection<T> coll)
+		=> Equal(1, coll.Count); //`Single(coll)` is incorrect, uses enumerator, not Count, dumb
 }

@@ -16,7 +16,7 @@ This library is a fork of [ashishkarn](https://github.com/ashishkarn)'s excellen
 - **Configurable Setter Behavior**: The `Force` property controls whether conflicting reverse mappings are silently evicted or cause an exception
 - **Comprehensive API**: Support for Add, Set, Remove, Contains, and Try* variants
 - **IEnumerable Support**: Iterate through key-value pairs with foreach
-- **Well-Tested**: Comprehensive unit test coverage (40 tests, 100% passing)
+- **Well-Tested**: Comprehensive unit test coverage (55 tests, 100% passing)
 - **Zero Dependencies**: No external dependencies beyond .NET 8.0+
 - **Multi-Target**: Supports .NET 8.0 and .NET 10.0
 
