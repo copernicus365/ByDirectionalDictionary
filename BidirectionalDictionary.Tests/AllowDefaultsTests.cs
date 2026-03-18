@@ -84,11 +84,11 @@ public class AllowDefaultsTests
 		var map = new BidirectionalDictionary<string, int> { AllowDefaults = true, Force = true };
 		map["pending"] = 0; // should not throw
 		Equal(0, map["pending"]);
-		Single(map);
+		IsSingle(map);
 
 		map["a2"] = 0; // should not throw
 
-		Single(map);
+		IsSingle(map);
 		Equal(0, map["a2"]);
 
 		False(map.ContainsKey("pending"));

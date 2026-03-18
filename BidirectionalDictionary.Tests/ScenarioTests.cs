@@ -11,21 +11,21 @@ public class ScenarioTests
 		// Act & Assert
 		map.Add("A", 1);
 		map.Add("B", 2);
-		Equal(2, map.Count);
+		IsCount(2, map);
 
 		map.Set("A", 3);  // Should keep B->2 and update A->3
-		Equal(2, map.Count);
+		IsCount(2, map);
 		Equal(3, map["A"]);
 		True(map.ContainsValue(2));  // B->2 should still exist
 
 		map.RemoveByKey("A");
-		Single(map);
+		IsSingle(map);
 		False(map.ContainsKey("A"));
 		False(map.ContainsValue(3));
 		True(map.ContainsKey("B"));  // B->2 should still exist
 
 		map.Add("C", 4);
-		Equal(2, map.Count);
+		IsCount(2, map);
 	}
 
 	[Fact]

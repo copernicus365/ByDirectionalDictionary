@@ -156,6 +156,6 @@ public class CollectionTests
 		map.Add(3, "three");
 
 		// Assert
-		Equal(3, map.Count);
+		IsCount(3, map);
 	}
 }

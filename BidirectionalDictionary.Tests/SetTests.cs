@@ -14,7 +14,7 @@ public class SetTests
 		map.Set(1, "one");
 
 		// Assert
-		Single(map);
+		IsSingle(map);
 		Equal("one", map[1]);
 	}
 
@@ -29,7 +29,7 @@ public class SetTests
 		map.Set(1, "uno");
 
 		// Assert
-		Single(map);
+		IsSingle(map);
 		Equal("uno", map[1]);
 		False(map.ContainsValue("one"));
 	}
@@ -45,7 +45,7 @@ public class SetTests
 		map.Set(2, "one");
 
 		// Assert
-		Single(map);
+		IsSingle(map);
 		Equal(2, map.GetKey("one"));
 		False(map.ContainsKey(1));
 	}
@@ -62,7 +62,7 @@ public class SetTests
 		map.Set(1, "two");
 
 		// Assert
-		Single(map);
+		IsSingle(map);
 		Equal("two", map[1]);
 		False(map.ContainsKey(2));
 	}
@@ -81,11 +81,11 @@ public class SetTests
 		var map = new BidirectionalDictionary<string, int> { Force = true };
 		map["a1"] = testVal; // should not throw
 		Equal(testVal, map["a1"]);
-		Single(map);
+		IsSingle(map);
 
 		map["a2"] = testVal; // should not throw
 
-		Single(map);
+		IsSingle(map);
 		Equal(testVal, map["a2"]);
 
 		False(map.ContainsKey("a1"));

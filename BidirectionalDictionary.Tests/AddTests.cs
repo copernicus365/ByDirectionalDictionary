@@ -12,7 +12,7 @@ public class AddTests
 		map.Add(1, "one");
 
 		// Assert
-		Single(map);
+		IsSingle(map);
 		Equal("one", map[1]);
 		Equal(1, map.GetKey("one"));
 
@@ -75,7 +75,7 @@ public class AddTests
 
 		// Assert
 		True(result);
-		Single(map);
+		IsSingle(map);
 	}
 
 	[Fact]
@@ -90,7 +90,7 @@ public class AddTests
 
 		// Assert
 		False(result);
-		Single(map);
+		IsSingle(map);
 	}
 
 	[Fact]
@@ -105,6 +105,6 @@ public class AddTests
 
 		// Assert
 		False(result);
-		Single(map);
+		IsSingle(map);
 	}
 }
