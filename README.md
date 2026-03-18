@@ -2,11 +2,11 @@
 
 [![NuGet](https://img.shields.io/nuget/v/DotNetXtensions.BidirectionalDictionary.svg)](https://www.nuget.org/packages/DotNetXtensions.BidirectionalDictionary)
 
-A high-performance bidirectional dictionary implementation for C# that maintains one-to-one relationships between keys and values, allowing O(1) lookups in both directions. A carefully thought out implementation, amongst which is a configurable setter behavior via the `Force` property: controls whether setting a `key`'s value silently evicts any conflicting reverse mapping (force mode, the default), or throws when `value` is already owned by a different `key`, aligned with important other BiMap libraries, like Guava's (Java based) `BiMap`.
+A high-performance bidirectional dictionary implementation for C# that maintains one-to-one relationships between keys and values, allowing O(1) lookups in both directions. A carefully thought out implementation, amongst which is a configurable setter behavior via the `Force` property: controls whether setting a `key`'s value silently evicts any conflicting reverse mapping (force mode, the default, ie the more lenient), or throws when `value` is already owned by a different `key`, aligned with important other BiMap libraries, like Guava's (Java based) `BiMap`. An `AllowDefaults` property (default: `true`) optionally rejects keys or values that equal their type's default — `0` for `int`, `Guid.Empty` for `Guid`, etc.
 
 ## Acknowledgments
 
-This library is a fork of [ashishkarn](https://github.com/ashishkarn)'s excellent [TwoWayDictionary](https://github.com/ashishkarn/TwoWayDictionary) — "a robust, reusable bidirectional mapping solution for the C# community". Key modifications include: configurable setter behavior via `Force`/`Set(key, value, force)`, an optimized `Set` implementation, the reverse indexer `this[TValue]`, custom comparer support, implements `IDictionary<TKey, TValue>` now, etc.
+This library is a fork of [ashishkarn](https://github.com/ashishkarn)'s excellent [TwoWayDictionary](https://github.com/ashishkarn/TwoWayDictionary) — "a robust, reusable bidirectional mapping solution for the C# community". Key modifications include: configurable setter behavior via `Force`/`Set(key, value, force)`, an optimized `Set` implementation, the reverse indexer `this[TValue]`, custom comparer support, `AllowDefaults` guard, implements `IDictionary<TKey, TValue>` now, etc.
 
 ## Features
 
@@ -14,9 +14,10 @@ This library is a fork of [ashishkarn](https://github.com/ashishkarn)'s excellen
 - **One-to-One Mapping**: Enforces unique keys and unique values - each key maps to exactly one value and vice versa
 - **Type-Safe**: Generic implementation with compile-time type checking
 - **Configurable Setter Behavior**: The `Force` property controls whether conflicting reverse mappings are silently evicted or cause an exception
+- **Default Value Guard**: The `AllowDefaults` property (default: `true`) can be set to `false` to reject keys or values equal to their type's default (`0`, `Guid.Empty`, `false`, etc.)
 - **Comprehensive API**: Support for Add, Set, Remove, Contains, and Try* variants
 - **IEnumerable Support**: Iterate through key-value pairs with foreach
-- **Well-Tested**: Comprehensive unit test coverage (55 tests, 100% passing)
+- **Well-Tested**: Comprehensive unit test coverage, 100% passing
 - **Zero Dependencies**: No external dependencies beyond .NET 8.0+
 - **Multi-Target**: Supports .NET 8.0 and .NET 10.0
 
@@ -105,6 +106,33 @@ map[2] = "Alice";  // throws: "Value 'Alice' is already mapped to key '1'"
 ```
 
 This maps to Guava's `BiMap` terminology: `Force = true` behaves like `forcePut`, `Force = false` behaves like `put`. The `Set(key, value, bool force)` overload lets you override this per-call regardless of the property.
+
+### Default Value Guard: the `AllowDefaults` Property
+
+The `AllowDefaults` property (default: `true`) controls whether keys or values equal to their type's default are permitted. Set it to `false` to enforce that all entries carry meaningful, non-default values — useful when `0`, `Guid.Empty`, `false`. On first look, this may not seem like a big deal, but when you consider, with a 1 to 1 restriction like this type has, it makes sense to never allow it. We still leave that in your hands, and thus have even kept this to `true` by default, but the point is, this is actually a significant issue.
+
+```csharp
+// AllowDefaults = true (default): 0, Guid.Empty, false, etc. are accepted
+var map = new BidirectionalDictionary<string, int>();
+map.Add("pending", 0);  // fine
+
+// AllowDefaults = false: throws ArgumentException for any default key or value
+var strictMap = new BidirectionalDictionary<string, int> { AllowDefaults = false };
+strictMap.Add("user", 0);    // throws: value 0 is the default for int
+strictMap.Add("user", 42);   // fine
+
+// Also guards keys
+var idMap = new BidirectionalDictionary<int, string> { AllowDefaults = false };
+idMap.Add(0, "alice");   // throws: key 0 is the default for int
+idMap.Add(42, "alice");  // fine
+
+// Works for any value type
+var guidMap = new BidirectionalDictionary<string, Guid> { AllowDefaults = false };
+guidMap.Add("x", Guid.Empty);   // throws
+guidMap.Add("x", Guid.NewGuid()); // fine
+```
+
+The guard applies to any adds or sets (`Add`, `TryAdd`, and `Set`, indexer setter, etc). `AllowDefaults` and `Force` are independent — both can be set freely.
 
 ### Retrieving Elements
 
@@ -244,6 +272,8 @@ BidirectionalDictionary<Guid, MyClass> map2 = [];
 // Invalid - nullable types not allowed
 // BidirectionalDictionary<int?, string> map3 = [];
 ```
+
+Note that while `0`, `Guid.Empty`, and similar are valid by default, you can opt in to rejecting them via `AllowDefaults = false` — see the [Default Value Guard](#default-value-guard-the-allowdefaults-property) section.
 
 ## Requirements
 
