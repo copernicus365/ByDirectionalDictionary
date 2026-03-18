@@ -85,6 +85,10 @@ map.Set(key, value, force: false);  // strict put: throw if value owned by diffe
 
 // Indexer set - same as Set (uses Force property)
 map[key] = value;
+
+// TrySet - returns false (without throwing, without modifying the dictionary) if value is
+// owned by a different key; on false, differentKeyOwns identifies the conflicting key
+bool set = map.TrySet(key, value, out TKey? differentKeyOwns);
 ```
 
 ### Setter Behavior: the `Force` Property
@@ -109,7 +113,7 @@ This maps to Guava's `BiMap` terminology: `Force = true` behaves like `forcePut`
 
 ### Default Value Guard: the `AllowDefaults` Property
 
-The `AllowDefaults` property (default: `true`) controls whether keys or values equal to their type's default are permitted. Set it to `false` to enforce that all entries carry meaningful, non-default values — useful when `0`, `Guid.Empty`, `false`. On first look, this may not seem like a big deal, but when you consider, with a 1 to 1 restriction like this type has, it makes sense to never allow it. We still leave that in your hands, and thus have even kept this to `true` by default, but the point is, this is actually a significant issue.
+The `AllowDefaults` property (default: `true`) controls whether keys or values equal to their type's default are permitted. Set it to `false` to enforce that all entries carry meaningful, non-default values — useful when `0`, `Guid.Empty`, `false`, and similar sentinel-like defaults would be ambiguous or invalid in your domain. On first look, this may not seem like a big deal, but when you consider, with a 1 to 1 restriction like this type has, it makes sense to never allow it. We still leave that in your hands, and thus have even kept this to `true` by default, but the point is, this is actually a significant issue.
 
 ```csharp
 // AllowDefaults = true (default): 0, Guid.Empty, false, etc. are accepted
@@ -133,6 +137,41 @@ guidMap.Add("x", Guid.NewGuid()); // fine
 ```
 
 The guard applies to any adds or sets (`Add`, `TryAdd`, and `Set`, indexer setter, etc). `AllowDefaults` and `Force` are independent — both can be set freely.
+
+### TrySet: Conflict-Aware Setting
+
+`TrySet` is a third option alongside `Force = true` and `Force = false`. Rather than silently evicting a conflicting mapping or throwing an exception, it returns `false` and leaves the dictionary **completely untouched**, letting the caller decide what to do next.
+
+This is a very useful feature, because the Set already had to do this check anyways. It allows you to have `!force` functionality (not silent overwrite of a conflict), but to allow the dictionary itself to do the work of checking if there will be a conflict.
+
+The `out TKey? differentKeyOwns` parameter tells you exactly which key already owns the conflicting value:
+
+```csharp
+var map = new BidirectionalDictionary<int, string>();
+map.Add(1, "Alice");
+map.Add(2, "Bob");
+
+// Change key 1 to pair with a NEW value ("Charlie") — no conflict, sets 1 → "Charlie"
+if(!map.TrySet(1, "Charlie", out int conflictKey))
+    Console.WriteLine($"Conflict: 'Charlie' already owned by key {conflictKey}");
+// map now: 1→"Charlie", 2→"Bob"
+
+// "Bob" is already owned by key 2 — conflict
+if(!map.TrySet(3, "Bob", out conflictKey))
+    Console.WriteLine($"Conflict: 'Bob' already owned by key {conflictKey}"); // → key 2
+// dictionary unchanged: still 1→"Charlie", 2→"Bob"
+```
+
+Return value semantics:
+- **`true`** — the mapping is now set (either it was just written, or it was already exactly `key → value`). `differentKeyOwns` is always `default`.
+- **`false`** — `value` is already owned by a different key. The dictionary is **unchanged** — no partial modifications, no evictions. `differentKeyOwns` is the key that owns `value`.
+
+This is the right choice when:
+- You want `Force = false` semantics (no silent evictions) but also don't want an exception — you need to handle the conflict gracefully in normal control flow
+- The conflict is a recoverable, expected condition (e.g. user-driven data entry, protocol negotiation)
+- You want to avoid the extra lookup you'd need to manually pre-check for a conflict before calling `Set`
+
+`AllowDefaults` is still respected: null or default keys/values throw `ArgumentNullException` / `ArgumentException` regardless.
 
 ### Retrieving Elements
 

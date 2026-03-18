@@ -220,6 +220,22 @@ public class BidirectionalDictionary<TKey, TValue> :
 		_rmap[value] = key;
 	}
 
+	/// <summary>
+	/// Attempts to set the mapping for <paramref name="key"/> to <paramref name="value"/>.
+	/// Unlike <see cref="Set(TKey, TValue, bool)"/>, this method never throws on a conflict and never
+	/// silently evicts a conflicting mapping — instead it returns <see langword="false"/> and leaves
+	/// the dictionary completely untouched, giving the caller full knowledge and control.
+	/// <para />
+	/// Returns <see langword="true"/> when the mapping was set, OR, when it was already set to the same value (!).
+	/// Returns <see langword="false"/> when <paramref name="value"/> is already owned by a different key,
+	/// in which case <paramref name="differentKeyOwns"/> contains that key and the dictionary is unchanged.
+	/// On <see langword="true"/>, <paramref name="differentKeyOwns"/> is always <see langword="default"/>.
+	/// </summary>
+	/// <param name="key">Key</param>
+	/// <param name="value">Value</param>
+	/// <param name="differentKeyOwns">When this method returns <see langword="false"/>, contains the key
+	/// that currently owns <paramref name="value"/>. Always <see langword="default"/> on <see langword="true"/>.</param>
+	/// <returns><see langword="true"/> if the mapping was set successfully; <see langword="false"/> if a conflict was detected.</returns>
 	public bool TrySet(TKey key, TValue value, out TKey? differentKeyOwns)
 	{
 		// unfort we have to duplicate much code with Set, would have been nice to fully share, but best in end
@@ -234,7 +250,7 @@ public class BidirectionalDictionary<TKey, TValue> :
 			return true;
 		}
 
-		// key may or may not exist at this point... but input key/value pair did NOT exist
+		// The exact key→value mapping does not exist yet
 
 		if(!AllowDefaults)
 			_checkDefaults(key, value);
