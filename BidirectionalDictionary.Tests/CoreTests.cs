@@ -19,6 +19,9 @@ public class CoreTests
 		Single(map);
 		Equal("one", map[1]);
 		Equal(1, map.GetKey("one"));
+
+		// indexer lookup - Reverse lookup
+		Equal(1, map["one"]);
 	}
 
 	[Fact]
@@ -72,7 +75,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.TryAdd(1, "one");
+		bool result = map.TryAdd(1, "one");
 
 		// Assert
 		True(result);
@@ -87,7 +90,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.TryAdd(1, "two");
+		bool result = map.TryAdd(1, "two");
 
 		// Assert
 		False(result);
@@ -102,7 +105,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.TryAdd(2, "one");
+		bool result = map.TryAdd(2, "one");
 
 		// Assert
 		False(result);
@@ -180,10 +183,12 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var value = map.GetValue(1);
+		string value = map.GetValue(1);
+		string valueFromIndexer = map[1]; // Indexer should also work for forward lookup
 
 		// Assert
 		Equal("one", value);
+		Equal("one", valueFromIndexer);
 	}
 
 	[Fact]
@@ -204,7 +209,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var key = map.GetKey("one");
+		int key = map.GetKey("one");
 
 		// Assert
 		Equal(1, key);
@@ -228,7 +233,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.TryGetValue(1, out var value);
+		bool result = map.TryGetValue(1, out string? value);
 
 		// Assert
 		True(result);
@@ -242,7 +247,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.TryGetValue(1, out var value);
+		bool result = map.TryGetValue(1, out string? value);
 
 		// Assert
 		False(result);
@@ -257,7 +262,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.TryGetKey("one", out var key);
+		bool result = map.TryGetKey("one", out int key);
 
 		// Assert
 		True(result);
@@ -271,7 +276,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.TryGetKey("one", out var key);
+		bool result = map.TryGetKey("one", out int key);
 
 		// Assert
 		False(result);
@@ -286,7 +291,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var value = map[1];
+		string value = map[1];
 
 		// Assert
 		Equal("one", value);
@@ -324,7 +329,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.RemoveByKey(1);
+		bool result = map.RemoveByKey(1);
 
 		// Assert
 		True(result);
@@ -340,7 +345,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.RemoveByKey(1);
+		bool result = map.RemoveByKey(1);
 
 		// Assert
 		False(result);
@@ -354,7 +359,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.RemoveByValue("one");
+		bool result = map.RemoveByValue("one");
 
 		// Assert
 		True(result);
@@ -370,7 +375,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.RemoveByValue("one");
+		bool result = map.RemoveByValue("one");
 
 		// Assert
 		False(result);
@@ -384,7 +389,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.Remove(1);
+		bool result = map.Remove(1);
 
 		// Assert
 		True(result);
@@ -399,7 +404,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.ContainsKey(1);
+		bool result = map.ContainsKey(1);
 
 		// Assert
 		True(result);
@@ -412,7 +417,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.ContainsKey(1);
+		bool result = map.ContainsKey(1);
 
 		// Assert
 		False(result);
@@ -426,7 +431,7 @@ public class CoreTests
 		map.Add(1, "one");
 
 		// Act
-		var result = map.ContainsValue("one");
+		bool result = map.ContainsValue("one");
 
 		// Assert
 		True(result);
@@ -439,7 +444,7 @@ public class CoreTests
 		BidirectionalDictionary<int, string> map = [];
 
 		// Act
-		var result = map.ContainsValue("one");
+		bool result = map.ContainsValue("one");
 
 		// Assert
 		False(result);
@@ -590,6 +595,7 @@ public class CoreTests
 
 		// Act & Assert - Reverse lookup
 		Equal("Alice", map.GetKey(101));
+		Equal("Alice", map[101]);
 		Equal("Bob", map.GetKey(102));
 		Equal("Charlie", map.GetKey(103));
 	}
