@@ -92,7 +92,7 @@ False(map.TrySet(220, "Sophia", out conflictKey));
 
 Equal(3, map.Count); // verify still only 3 items, failed TrySet didn't add
 
-False(map.ContainsValue("Sophie")); // original "Sophie" value is gone
+False(map.ContainsValue("Sophie")); // updated "Sophie" value is gone
 
 True(map.TryGetKey("Sophia", out int ownerKey) && ownerKey == 120);
 ```
@@ -299,7 +299,7 @@ countryMap.Add("CA", "Canada");
 string fullName = countryMap["US"];  // "United States"
 
 // Get code from full name
-string code = countryMap["Canada"];  // "CA"
+string code = countryMap.GetKey("Canada");  // "CA"
 ```
 
 ### Coordinate to Entity Mapping (Game Development)
