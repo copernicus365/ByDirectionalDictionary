@@ -27,4 +27,10 @@ public static class TestsX
 			Equal(key, map[value]);
 		}
 	}
+
+	public static void IsEqual<TKey, TValue>(IDictionary<TKey, TValue> dict1, IDictionary<TKey, TValue> dict2)
+	{
+		bool equal = dict1.DictionariesAreEqual(dict2);
+		True(equal);
+	}
 }

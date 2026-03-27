@@ -538,6 +538,69 @@ public static class BidirectionalDictionaryX
 		map.AddRange(source, out conflicts);
 		return map;
 	}
+
+	/// <summary>
+	/// Creates a <see cref="BidirectionalDictionary{TKey, TValue}"/> from <paramref name="source"/>
+	/// using key and value selector functions.
+	/// By default any duplicate key or value throws (<paramref name="force"/> = <see langword="false"/>).
+	/// Set <paramref name="force"/> to <see langword="true"/> to silently evict conflicting mappings
+	/// (last in wins).
+	/// </summary>
+	/// <param name="source">Source sequence.</param>
+	/// <param name="keySelector">Function to extract the key from each element.</param>
+	/// <param name="valueSelector">Function to extract the value from each element.</param>
+	/// <param name="force">When <see langword="true"/>, key value conflicts silently evict the existing mapping.
+	/// When <see langword="false"/> (default), any duplicate key or value throws.</param>
+	/// <param name="allowDefaults">Sets the <see cref="BidirectionalDictionary{TKey,TValue}.AllowDefaults"/> property
+	/// (else that defaults to its normal default).</param>
+	/// <param name="keyComparer">Key comparer, or null to use the default for the type.</param>
+	public static BidirectionalDictionary<TKey, TValue> ToBidirectionalDictionary<T, TKey, TValue>(
+		this IEnumerable<T> source,
+		Func<T, TKey> keySelector,
+		Func<T, TValue> valueSelector,
+		bool force = false,
+		bool? allowDefaults = null,
+		IEqualityComparer<TKey>? keyComparer = null)
+		where TKey : notnull
+		where TValue : notnull
+	{
+		BidirectionalDictionary<TKey, TValue> map = new(keyComparer) { Force = force };
+		if(allowDefaults.HasValue)
+			map.AllowDefaults = allowDefaults.Value;
+		map.AddRange(source.Select(item => new KeyValuePair<TKey, TValue>(keySelector(item), valueSelector(item))), force);
+		return map;
+	}
+
+	/// <summary>
+	/// Creates a <see cref="BidirectionalDictionary{TKey, TValue}"/> from <paramref name="source"/>
+	/// using key and value selector functions, with <see cref="BidirectionalDictionary{TKey,TValue}.TrySet"/> semantics —
+	/// never throws, never evicts. Entries whose value is already owned by a different key are skipped and
+	/// collected into <paramref name="conflicts"/>, or <see langword="null"/> if there were none.
+	/// The returned map has <see cref="BidirectionalDictionary{TKey,TValue}.Force"/> set to <see langword="true"/>.
+	/// </summary>
+	/// <param name="source">Source sequence.</param>
+	/// <param name="keySelector">Function to extract the key from each element.</param>
+	/// <param name="valueSelector">Function to extract the value from each element.</param>
+	/// <param name="conflicts">The skipped conflicts, or <see langword="null"/> if none.</param>
+	/// <param name="allowDefaults">Sets the <see cref="BidirectionalDictionary{TKey,TValue}.AllowDefaults"/> property
+	/// (else that defaults to its normal default).</param>
+	/// <param name="keyComparer">Key comparer, or null to use the default for the type.</param>
+	public static BidirectionalDictionary<TKey, TValue> ToBidirectionalDictionary<T, TKey, TValue>(
+		this IEnumerable<T> source,
+		Func<T, TKey> keySelector,
+		Func<T, TValue> valueSelector,
+		out List<KVConflict<TKey, TValue>>? conflicts,
+		bool? allowDefaults = null,
+		IEqualityComparer<TKey>? keyComparer = null)
+		where TKey : notnull
+		where TValue : notnull
+	{
+		BidirectionalDictionary<TKey, TValue> map = new(keyComparer) { Force = true };
+		if(allowDefaults.HasValue)
+			map.AllowDefaults = allowDefaults.Value;
+		map.AddRange(source.Select(item => new KeyValuePair<TKey, TValue>(keySelector(item), valueSelector(item))), out conflicts);
+		return map;
+	}
 }
 
 /// <summary>
