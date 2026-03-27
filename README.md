@@ -16,6 +16,7 @@ This library is a fork of [ashishkarn](https://github.com/ashishkarn)'s excellen
 - **Configurable Setter Behavior**: The `Force` property controls whether conflicting reverse mappings are silently evicted or cause an exception
 - **Default Value Guard**: The `AllowDefaults` property (default: `true`) can be set to `false` to reject keys or values equal to their type's default (`0`, `Guid.Empty`, `false`, etc.)
 - **Comprehensive API**: Support for Add, Set, Remove, Contains, and Try* variants
+- **Bulk Loading**: `AddRange` and `ToBidirectionalDictionary` extension methods convert any existing dictionary or sequence, with three conflict strategies: throw, force-evict, or collect conflicts via `KVConflict<TKey, TValue>`
 - **IEnumerable Support**: Iterate through key-value pairs with foreach
 - **Well-Tested**: Comprehensive unit test coverage, 100% passing
 - **Zero Dependencies**: No external dependencies beyond .NET 8.0+
@@ -122,6 +123,48 @@ map[key] = value;
 // TrySet - returns false (without throwing, without modifying the dictionary) if value is
 // owned by a different key; on false, conflictKey identifies the conflicting key
 bool set = map.TrySet(key, value, out TKey? conflictKey);
+```
+
+### Creating from an Existing Dictionary or Collection
+
+Any `IEnumerable<KeyValuePair<TKey, TValue>>` — including `Dictionary<TKey, TValue>`, LINQ projections, lists of `KeyValuePair`, etc. — can be converted via the `ToBidirectionalDictionary` extension methods, or bulk-loaded into an existing map via `AddRange`.
+
+Three conflict strategies are available, consistent with the rest of the API:
+
+```csharp
+Dictionary<int, string> source = new() { [1] = "one", [2] = "two", [3] = "three" };
+
+// Strict (default, force: false) — throws on any duplicate value, consistent with ToDictionary()
+BidirectionalDictionary<int, string> map = source.ToBidirectionalDictionary();
+
+// Force — silently evicts conflicting mappings, last in wins
+BidirectionalDictionary<int, string> map = source.ToBidirectionalDictionary(force: true);
+
+// Collect conflicts — never throws, never evicts; skipped entries returned in conflicts list
+BidirectionalDictionary<int, string> map = source.ToBidirectionalDictionary(
+    out List<KVConflict<int, string>>? conflicts);
+
+if(conflicts != null) {
+    foreach(KVConflict<int, string> c in conflicts)
+        WriteLine($"Skipped {c.Key}→{c.Value}: value already owned by key {c.ConflictKey}");
+}
+
+// Optional: case-insensitive key comparer
+BidirectionalDictionary<string, int> map = source.ToBidirectionalDictionary(
+    keyComparer: StringComparer.OrdinalIgnoreCase);
+```
+
+`AddRange` provides the same three strategies as instance methods, for loading into an existing (possibly already-populated) map. In fact the extension methods ultimately call `AddRange` methods:
+
+```csharp
+// Useful when you need to configure the map first (comparers, AllowDefaults, etc.)
+BidirectionalDictionary<int, string> map = new() { AllowDefaults = false };
+
+map.AddRange(source);                // uses map.Force property
+map.AddRange(source, force: false);  // strict — throws on conflict
+map.AddRange(source, force: true);   // evict conflicts silently
+
+map.AddRange(source, out List<KVConflict<int, string>>? conflicts); // collect conflicts
 ```
 
 ### Setter Behavior: the `Force` Property
