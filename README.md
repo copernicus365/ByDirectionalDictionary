@@ -154,6 +154,24 @@ BidirectionalDictionary<string, int> map = source.ToBidirectionalDictionary(
     keyComparer: StringComparer.OrdinalIgnoreCase);
 ```
 
+Any `IEnumerable<T>` can also be converted directly using key and value selectors — the same three conflict strategies apply:
+
+```csharp
+record User(int Id, string Name);
+
+List<User> users = [new(1, "Alice"), new(2, "Bob"), new(3, "Charlie")];
+
+// Strict (default) — throws on duplicate value
+BidirectionalDictionary<int, string> map = users.ToBidirectionalDictionary(x => x.Id, x => x.Name);
+
+// Force — last in wins on conflict
+BidirectionalDictionary<int, string> map = users.ToBidirectionalDictionary(x => x.Id, x => x.Name, force: true);
+
+// Collect conflicts
+BidirectionalDictionary<int, string> map = users.ToBidirectionalDictionary(
+    x => x.Id, x => x.Name, out List<KVConflict<int, string>>? conflicts);
+```
+
 `AddRange` provides the same three strategies as instance methods, for loading into an existing (possibly already-populated) map. In fact the extension methods ultimately call `AddRange` methods:
 
 ```csharp
